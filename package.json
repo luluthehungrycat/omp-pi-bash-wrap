@@ -1,6 +1,6 @@
 {
   "name": "@luluthehungrycat/omp-pi-bash-wrap",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "license": "MIT",
   "author": "JerryAZR",
   "description": "Sandbox pi bash commands with bubblewrap",

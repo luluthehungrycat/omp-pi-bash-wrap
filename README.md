@@ -23,7 +23,7 @@ omp plugin doctor
 For direct GitHub installation without the package registry:
 
 ```bash
-omp plugin install git+ssh://git@github.com/luluthehungrycat/omp-pi-bash-wrap.git#v0.1.7
+omp plugin install git+ssh://git@github.com/luluthehungrycat/omp-pi-bash-wrap.git#v0.1.8
 ```
 
 Or load locally:

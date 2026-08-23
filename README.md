@@ -2,16 +2,34 @@
 
 Sandbox [pi](https://github.com/earendil-works/pi-coding-agent) bash commands with [bubblewrap](https://github.com/containers/bubblewrap). LLM-invoked commands run inside a minimal filesystem sandbox. User-initiated `!commands` are never sandboxed.
 
-## Install
+## Install with OMP
+
+The recommended installation is through OMP's plugin manager. This package is published to GitHub Packages under the `@luluthehungrycat` scope.
+
+Configure GitHub Packages authentication once:
 
 ```bash
-pi install npm:@jerryan/pi-bash-wrap
+npm config set @luluthehungrycat:registry https://npm.pkg.github.com
+npm config set //npm.pkg.github.com/:_authToken "$GITHUB_TOKEN"
+```
+
+Then install and verify:
+
+```bash
+omp plugin install @luluthehungrycat/omp-pi-bash-wrap
+omp plugin doctor
+```
+
+For direct GitHub installation without the package registry:
+
+```bash
+omp plugin install git+ssh://git@github.com/luluthehungrycat/omp-pi-bash-wrap.git#v0.1.7
 ```
 
 Or load locally:
 
 ```bash
-pi -e /path/to/pi-bash-wrap/dist/index.js
+omp --extension /path/to/pi-bash-wrap/dist/index.js
 ```
 
 ## Requirements

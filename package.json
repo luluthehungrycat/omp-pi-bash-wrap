@@ -1,6 +1,6 @@
 {
-  "name": "@jerryan/pi-bash-wrap",
-  "version": "0.1.6",
+  "name": "@luluthehungrycat/omp-pi-bash-wrap",
+  "version": "0.1.7",
   "license": "MIT",
   "author": "JerryAZR",
   "description": "Sandbox pi bash commands with bubblewrap",
@@ -20,7 +20,7 @@
     "LICENSE"
   ],
   "publishConfig": {
-    "access": "public"
+    "registry": "https://npm.pkg.github.com"
   },
   "repository": {
     "type": "git",

@@ -1,8 +1,10 @@
 import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { spawn, spawnSync } from "node:child_process";
-import { getShellConfig, type BashOperations } from "@earendil-works/pi-coding-agent";
+import { homedir } from "node:os";
+import type { BashOperations } from "@oh-my-pi/pi-coding-agent/extensibility/legacy-pi-coding-agent-shim";
+import { getShellConfig } from "@oh-my-pi/pi-utils/procmgr";
 import type { BwrapConfig } from "./types.js";
 import { expandHome } from "./utils.js";
 import { waitForChild, killProcessTree } from "./child-process.js";
@@ -59,15 +61,33 @@ export function buildBwrapArgs(
 		"/",
 		"--dev",
 		"/dev",
+		"--unshare-pid",
 		"--proc",
 		"/proc",
-		"--bind",
-		cwd,
-		cwd,
-		"--bind",
+		"--tmpfs",
 		"/tmp",
-		"/tmp",
+		"--tmpfs",
+		"/run",
+		"--tmpfs",
+		"/root",
+		"--tmpfs",
+		homedir(),
 	];
+
+	const ensureHomeParents = (target: string) => {
+		const home = homedir();
+		const absolute = resolve(target);
+		if (!absolute.startsWith(`${home}/`)) return;
+		const relative = absolute.slice(home.length + 1).split("/");
+		let current = home;
+		for (const part of relative) {
+			current = `${current}/${part}`;
+			args.push("--dir", current);
+		}
+	};
+
+	ensureHomeParents(cwd);
+	args.push("--bind", cwd, cwd);
 
 	// Hide system-wide SSH config snippets that may have broken ownership
 	// inside user namespaces (e.g., container environments where host root
@@ -78,12 +98,18 @@ export function buildBwrapArgs(
 
 	for (const p of config.extraReadPaths) {
 		const rp = resolve(expandHome(p));
-		if (existsSync(rp)) args.push("--ro-bind", rp, rp);
+		if (existsSync(rp)) {
+			ensureHomeParents(dirname(rp));
+			args.push("--ro-bind", rp, rp);
+		}
 	}
 
 	for (const p of config.extraWritePaths) {
 		const rp = resolve(expandHome(p));
-		if (existsSync(rp)) args.push("--bind", rp, rp);
+		if (existsSync(rp)) {
+			ensureHomeParents(dirname(rp));
+			args.push("--bind", rp, rp);
+		}
 	}
 
 	if (config.internet === "block") {
@@ -119,11 +145,17 @@ export function createBwrapOps(bwrapPath: string, config: BwrapConfig): BashOper
 
 			const args = buildBwrapArgs(config, cwd, command);
 
+			const inheritedEnv = env ?? process.env;
+			const sandboxEnv = Object.fromEntries(
+				Object.entries(inheritedEnv).filter(([key]) =>
+					!/^(SSH_AUTH_SOCK|SSH_AGENT_PID|AWS_|AZURE_|GOOGLE_APPLICATION_CREDENTIALS|GITHUB_TOKEN|GH_TOKEN|OPENAI_API_KEY|ANTHROPIC_API_KEY|HF_TOKEN|HUGGING_FACE_HUB_TOKEN)/.test(key),
+				),
+			) as NodeJS.ProcessEnv;
 			const child = spawn(bwrapPath, args, {
 				cwd,
 				detached: true,
 				stdio: ["ignore", "pipe", "pipe"],
-				env: env ?? process.env,
+				env: sandboxEnv,
 				windowsHide: true,
 			});
 

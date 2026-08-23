@@ -127,11 +127,12 @@ describe("buildBwrapArgs", () => {
 		const config = makeConfig({ shellPath: "/bin/bash" });
 		const args = buildBwrapArgs(config, cwd, "echo hello");
 
-		// Find the shell in args (should be before -c and command)
+		// OMP's shell configuration uses login + command mode before the command.
 		const shellIndex = args.indexOf("/bin/bash");
 		assert.notEqual(shellIndex, -1, "custom shell path should appear in args");
-		assert.equal(args[shellIndex + 1], "-c");
-		assert.equal(args[shellIndex + 2], "echo hello");
+		assert.equal(args[shellIndex + 1], "-l");
+		assert.equal(args[shellIndex + 2], "-c");
+		assert.equal(args[shellIndex + 3], "echo hello");
 	});
 });
 

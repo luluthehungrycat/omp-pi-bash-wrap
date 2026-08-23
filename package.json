@@ -36,14 +36,21 @@
     "prepublishOnly": "npm run build && npm test"
   },
   "peerDependencies": {
-    "@earendil-works/pi-coding-agent": "*",
-    "typebox": "*"
+    "@oh-my-pi/pi-coding-agent": ">=18.0.0",
+    "@oh-my-pi/pi-utils": ">=18.0.0"
   },
   "devDependencies": {
+    "@oh-my-pi/pi-coding-agent": "18.0.0",
+    "@oh-my-pi/pi-utils": "18.0.0",
     "@types/node": "^22.0.0",
     "typescript": "^5.7.0"
   },
   "pi": {
+    "extensions": [
+      "./dist/index.js"
+    ]
+  },
+  "omp": {
     "extensions": [
       "./dist/index.js"
     ]

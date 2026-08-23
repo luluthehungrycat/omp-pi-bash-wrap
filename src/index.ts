@@ -9,9 +9,8 @@
  *   - <cwd>/.pi/bwrap.json          (project-local)
  */
 
-import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { createBashToolDefinition } from "@earendil-works/pi-coding-agent";
-import { Type } from "typebox";
+import type { ExtensionAPI } from "@oh-my-pi/pi-coding-agent";
+import { createBashToolDefinition } from "@oh-my-pi/pi-coding-agent/extensibility/legacy-pi-coding-agent-shim";
 import { loadConfig } from "./config.js";
 import { findBwrap, testBwrap, createBwrapOps } from "./bwrap.js";
 import { executeWithFallback } from "./execute.js";
@@ -26,8 +25,21 @@ import { tmpdir } from "node:os";
 
 export default function (pi: ExtensionAPI) {
 	const cwd = process.cwd();
+	const Type = pi.typebox.Type;
 	let active = false;
 	let userToggled = false;
+
+	const registerFailClosedBash = (toolCwd: string, reason: string) => {
+		const localDef = createBashToolDefinition(toolCwd);
+		pi.registerTool({
+			...localDef,
+			label: "bash (sandbox unavailable)",
+			description: `${localDef.description ?? "bash"} Sandbox unavailable: execution is blocked.`,
+			async execute() {
+				throw new Error(`bwrap sandbox unavailable; host bash execution blocked: ${reason}`);
+			},
+		});
+	};
 
 	pi.registerFlag("no-bwrap", {
 		description: "Disable bubblewrap sandboxing for bash commands",
@@ -96,6 +108,7 @@ export default function (pi: ExtensionAPI) {
 			active = false;
 			ctx.ui.setStatus("bwrap", ctx.ui.theme.fg("muted", "bwrap: unsupported"));
 			ctx.ui.notify(`bash-wrap: unsupported on ${process.platform}`, "warning");
+			registerFailClosedBash(ctx.cwd, `unsupported platform ${process.platform}`);
 			return;
 		}
 
@@ -107,6 +120,7 @@ export default function (pi: ExtensionAPI) {
 			const hint = getBwrapInstallHint(pm);
 			ctx.ui.setStatus("bwrap", ctx.ui.theme.fg("warning", "bwrap: missing"));
 			ctx.ui.notify(`bash-wrap: bubblewrap not found. Install with: ${hint}`, "warning");
+			registerFailClosedBash(ctx.cwd, "bubblewrap executable not found");
 			return;
 		}
 
@@ -114,6 +128,7 @@ export default function (pi: ExtensionAPI) {
 			active = false;
 			ctx.ui.setStatus("bwrap", ctx.ui.theme.fg("warning", "bwrap: incompatible"));
 			ctx.ui.notify("bash-wrap: bubblewrap installed but user namespaces are blocked. Sandbox disabled.", "warning");
+			registerFailClosedBash(ctx.cwd, "bubblewrap compatibility test failed");
 			return;
 		}
 
@@ -191,9 +206,8 @@ export default function (pi: ExtensionAPI) {
 		const bwrapOps = createBwrapOps(bwrapPath, config);
 		const bwrapDef = createBashToolDefinition(ctx.cwd, {
 			operations: bwrapOps,
-			shellPath: config.shellPath,
 		});
-		const localDef = createBashToolDefinition(ctx.cwd, { shellPath: config.shellPath });
+		const localDef = createBashToolDefinition(ctx.cwd);
 
 		const extendedSchema = Type.Object({
 			command: Type.String(),

@@ -1,0 +1,1 @@
+{"version":3,"file":"child-process.d.ts","sourceRoot":"","sources":["../src/child-process.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,KAAK,EAAE,MAAM,oBAAoB,CAAC;AAE3C,wBAAgB,YAAY,CAAC,IAAI,EAAE,UAAU,CAAC,OAAO,KAAK,CAAC,GAAG,OAAO,CAAC,MAAM,GAAG,IAAI,CAAC,CAqCnF;AAED,wBAAgB,eAAe,CAAC,GAAG,EAAE,MAAM,GAAG,IAAI,CAUjD"}

@@ -223,15 +223,23 @@ Bubblewrap processes arguments sequentially; later mounts override earlier ones.
 
 ## Development
 
+This repository is an OMP 18 port. Development and CI use Bun 1.4.0; npm is only used by the GitHub Packages publisher.
+
 ```bash
-git clone git@github.com:JerryAZR/pi-bash-wrap.git
-cd pi-bash-wrap
-npm install
-npm run build
-npm test
+git clone https://github.com/luluthehungrycat/omp-pi-bash-wrap.git
+cd omp-pi-bash-wrap
+bun install --frozen-lockfile
+bun run build
+bun test
 ```
 
-Tests use Node's built-in test runner (`node:test`) and cover config loading, bwrap argument construction, and utility functions.
+To validate the release contents without publishing:
+
+```bash
+npm pack --dry-run
+```
+
+The repository workflows also run type/build tests, public no-token `github:` plugin installation, `omp plugin doctor`, GitHub Packages installation, and the Podman containment boundary gate.
 
 ## License
 

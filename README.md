@@ -4,26 +4,19 @@ Sandbox [pi](https://github.com/earendil-works/pi-coding-agent) bash commands wi
 
 ## Install with OMP
 
-The recommended installation is through OMP's plugin manager. This package is published to GitHub Packages under the `@luluthehungrycat` scope.
+The default installation uses the public GitHub repository and does not require a GitHub token:
 
-Configure GitHub Packages authentication once:
+```bash
+omp plugin install github:luluthehungrycat/omp-pi-bash-wrap#v0.1.8
+omp plugin doctor
+```
+
+For consumers who prefer the authenticated GitHub Packages registry:
 
 ```bash
 npm config set @luluthehungrycat:registry https://npm.pkg.github.com
 npm config set //npm.pkg.github.com/:_authToken "$GITHUB_TOKEN"
-```
-
-Then install and verify:
-
-```bash
-omp plugin install @luluthehungrycat/omp-pi-bash-wrap
-omp plugin doctor
-```
-
-For direct GitHub installation without the package registry:
-
-```bash
-omp plugin install git+ssh://git@github.com/luluthehungrycat/omp-pi-bash-wrap.git#v0.1.8
+omp plugin install @luluthehungrycat/omp-pi-bash-wrap@0.1.8
 ```
 
 Or load locally:
